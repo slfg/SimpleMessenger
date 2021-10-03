@@ -1,0 +1,50 @@
+<div>
+    <label for="Titulo">User</label>
+    <div>
+        <input autofocus class="form-control" name="User" id="UserFieldId" />
+    </div>
+</div>
+
+<div>
+    <label for="Comments">Mensagem</label>
+    <div>
+        <textarea class="form-control" cols="15" name="Mensagem" maxlength="30000" rows="10" id="MsgFieldId"></textarea>
+    </div>
+</div>
+
+<button id="MensagemId">Enviar</button><br><br><br>
+<a href="/" id="redirectId" class="hidden">
+    <button>Retornar a mensagens</button>
+</a>
+</body>
+
+<script>
+    $(document).ready(function() {
+        $("#MensagemId").click(function() {
+            let myJson = {
+                'User': $("#UserFieldId").val(),
+                'Mensagem': $("#MsgFieldId").val()
+            };
+            let User = $("#UserFieldId").val();
+            $("#redirectId").attr("href", "/" + User + "/messages");
+            $.ajax({
+                url: "/" + User + "/messages",
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(myJson),
+                success: function(data) {
+                    var validado = data.validado;
+                    if (validado == "OK") {
+                        $("#redirectId").removeClass("hidden");
+                    }
+                    if (validado == "FALSE") {
+                        alert("Usuário não existe");
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</html>

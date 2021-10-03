@@ -1,0 +1,26 @@
+<%- include("_header") -%>
+
+    <ul>
+        <a>Id</a><br>
+        <% for (const book of model) { %>
+            <li>
+                <b><%= book.MsgId %>:</b>
+                <a>Mensagem para</a>
+                <b><%= book.User %></b> <a>: </a>
+                <%= book.Mensagem %>
+            </li>
+            <% } %>
+
+    </ul>
+    <button onclick="window.location.href='/send';">
+        Mandar Mensagem
+      </button><br><br>
+    <button onclick="window.location.href='/idview';">
+        Veja uma mensagem via Id
+      </button><br> <br>
+    <button onclick="window.location.href='/del';">
+        Deletar uma mensagem via Id
+      </button> <br> <br>
+    <a href="/"><button>Tela de Login</button></a>
+
+    <%- include("_footer") -%>

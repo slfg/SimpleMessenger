@@ -1,0 +1,55 @@
+<div>
+    <label for="User">User</label>
+    <div>
+        <input autofocus class="form-control" name="User" id="FieldUserId" />
+    </div>
+</div>
+
+<div>
+    <label for="Id">Id da mensagem</label>
+    <div>
+        <input autofocus class="form-control" name="MsgId" id="MsgIdId" />
+    </div>
+</div>
+
+<ul>
+    <li>
+        <a id="MensagemRetornada"></a>
+    </li>
+</ul>
+
+<button id="ButtonId">Procurar</button>
+<br> <br>
+<a href="javascript:history.back()"><button>Home</button></a>
+</body>
+
+<script>
+    $(document).ready(function() {
+        $("#ButtonId").click(function() {
+            let myJson = {
+                'User': $("#FieldUserId").val(),
+                'MsgId': $("#MsgIdId").val()
+            };
+            let User = $("#FieldUserId").val();
+            let MsgId = $("#MsgIdId").val();
+            $("#redirectId").attr("href", "/" + User + "/messages/" + MsgId);
+            $.ajax({
+                url: "/" + User + "/messages/" + MsgId,
+                type: 'GET',
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(myJson),
+                success: function(data) {
+                    var validado = data.validado;
+                    if (validado == "FALSE") {
+                        alert("Usuário ou Id não existe");
+                    } else {
+                        $("#MensagemRetornada").html(data[0].Mensagem)
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+</html>
