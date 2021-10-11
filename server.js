@@ -83,7 +83,6 @@ function authenticateToken(req, res, next) {
             next();
         })
     } else {
-        alert('token não encontrado')
         console.log('token não enviado');
         return res.status(401).redirect('/');
     }
