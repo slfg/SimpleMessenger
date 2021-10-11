@@ -1,13 +1,47 @@
 <%- include("_header") -%>
-    <form action="/" method="post">
-        <b>User</b><br>
-        <input type="text" name="Login"><br>
-        <b>Password</b> <br>
-        <input type="password" name="Password">
-        <input type="submit" value="Logar">
-        <br><br>
-        <a href='/cadastrar'>
-            Cadastrar
-          </a>
-    </form>
-    <%- include("_footer") -%>
+    <b>User</b><br>
+    <input type="text" name="Login" id="login"><br>
+    <b>Password</b> <br>
+    <input type="password" name="Password" id="password">
+    <button id="submit">Logar</button>
+    <br><br>
+    <a href='/cadastrar'>
+    Cadastrar
+  </a>
+    </body>
+
+    <script>
+        $(document).ready(function() {
+            $("#submit").click(function() {
+                let myJson = {
+                    'Login': $("#login").val(),
+                    'Password': $("#password").val()
+                };
+                const User = $("#login").val();
+                $.ajax({
+                    url: "/",
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(myJson),
+                    success: function(data) {
+                        $.ajax({
+                            url: "/" + User + "/messages/",
+                            type: "GET",
+                            headers: {
+                                "x-access-token": data.accessToken
+                            },
+                            dataType: "html",
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify(data),
+                            success: function(html) {
+                                jQuery("body").html(html);
+                            }
+                        })
+                    }
+                });
+            });
+        });
+    </script>
+
+    </html>

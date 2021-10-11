@@ -1,8 +1,12 @@
+require('dotenv').config()
+
 const express = require("express");
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 const app = express();
+const jwt = require('jsonwebtoken');
 const port = process.env.PORT || 3000;
+const session = require('express-session');
 
 const nocache = require('nocache');
 const { isArray } = require('util');
@@ -11,6 +15,7 @@ const { resolveSoa } = require("dns");
 app.use(nocache());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(session({ secret: "Shh, its a secret!" }));
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -67,6 +72,22 @@ db.run(sql_create_message, err => {
     });
 });
 
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['x-access-token']
+    if (authHeader) {
+        jwt.verify(authHeader, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+            if (err) {
+                return res.status(401).redirect('/');
+            }
+            req.session.user = user;
+            next();
+        })
+    } else {
+        console.log('token não enviado');
+        return res.status(401).redirect('/');
+    }
+}
+
 app.get("/", (req, res) => {
     {
         res.render("index");
@@ -97,7 +118,7 @@ app.get("/del", (req, res) => {
     }
 });
 
-app.get("/:User/messages/", (req, res) => {
+app.get("/:User/messages/", authenticateToken, (req, res) => {
     var User = req.params.User;
     db.get("SELECT * from myUserMessages where User=?", [User], function(err, row) {
         if (typeof row !== 'undefined' && row != null) {
@@ -171,10 +192,19 @@ app.post("/:User/messages", (req, res) => {
 app.post('/', (req, res) => {
     db.get("SELECT * from User where Login=? and Password=?", [req.body.Login, req.body.Password], function(err, row) {
         User = req.body.Login;
+        Password = req.body.Password;
+        const login = { Login: User, Password: Password };
+        const accessToken = jwt.sign(login, process.env.ACCESS_TOKEN_SECRET);
+
         if (typeof row !== 'undefined' && row != null) {
-            res.redirect('/' + User + '/messages')
+            // res.set({
+            //     'Content-Type': 'application/json',
+            //     'x-access-token': accessToken
+            // });
+            // res.redirect('/' + User + '/messages/');
+            res.status(200).json({ accessToken: accessToken });
         } else {
-            res.status(500).json({ 'Acesso': 'Negado' });
+            res.status(200).json({ 'Acesso': 'Negado' });
         }
     });
 });
